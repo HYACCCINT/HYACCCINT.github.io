@@ -29,44 +29,56 @@ function $$$(selector) {
 	return _self
 }
 
-function Transistor(event) {
-	this.event=event;
+function Transistor(event, id) {
+	this.event = event;
+	this.id = id
 }
 Transistor.prototype = {
 	setEventType: function (event) {
 		this.event = event
 		this.triggerAnimation();
 	},
+	setObjectID: function (id) {
+		this.id = id
+		this.triggerAnimation();
+	},
 	triggerAnimation: function () {
 		if (this.event === 'scroll') {
-			window.addEventListener(
-				"scroll",
-				() => {
-				  document.body.style.setProperty(
-					"--scroll",
-					window.pageYOffset / (document.body.offsetHeight - window.innerHeight)
-				  );
-				},
-				false
-			  );
+			window.removeEventListener("mousemove", this.horiAnimation, false);
+			window.addEventListener("scroll", this.scrollAnimation, false);
 		}
 		else if (this.event === 'mouseHorizontal') {
-			let iceCream = document.getElementById('icecream')
-			let timeout ;
-			window.addEventListener('mousemove', ({x,y}) => {
-				if(timeout){
-				  window.cancelAnimationFrame(timeout)
-				}
-				timeout = window.requestAnimationFrame(() => {
-				  const xValue = (x/window.innerWidth * 100 - 100 / 2).toFixed(1)
-				  iceCream.style.transform = `translateX(${xValue}px)`;
-				});
-			  }, false);
+			window.removeEventListener("scroll", this.scrollAnimation, false);
+			window.addEventListener('mousemove', this.horiAnimation, false);
 		}
+	},
+	horiAnimation: function ({x}) {;
+		let timeout;
+		let element = document.getElementById(this.id || "transistor")
+		if (element.classList.contains("rotate")) {
+			element.classList.remove("rotate")
+		}
+		if(timeout){
+		  window.cancelAnimationFrame(timeout)
+		}
+		timeout = window.requestAnimationFrame(() => {
+		  const xValue = (x/window.innerWidth * 100 - 100 / 2).toFixed(1)
+		  element.style.transform = `translateX(${xValue}px)`;
+		});
+	  },
+	  scrollAnimation: function () {
+		let element = document.getElementById(this.id || "transistor")
+		if (!element.classList.contains("rotate")) {
+			element.classList.add("rotate")
+		}
+		document.body.style.setProperty(
+		  "--scroll",
+		  window.pageYOffset / (document.body.offsetHeight - window.innerHeight)
+		);
 	}
 
 }
-function changeType(value, transistor)
+function changeEventType(value, transistor)
 {
 	transistor.setEventType(value)
 }
